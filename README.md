@@ -41,7 +41,8 @@ After project generated, there is a 'User' dir contains the codes you should wri
 
 Then type `make` to build the project.
 
-The <part>.elf / <part>.bin / <part>.hex will be generated at 'build' dir.
+The `<part>.elf` / `<part>.bin` / `<part>.hex` will be generated at 'build' dir and can be programmed to target device later.
+
 
 
 
