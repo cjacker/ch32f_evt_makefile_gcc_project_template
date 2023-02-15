@@ -93,6 +93,7 @@ cd CH32F_firmware_library/Startup
 for other_asm in *.s; do
   ../../startupfile_generator.py $other_asm
 done
+rm -f *.s
 cd ../..
 
 # Fix source codes... 
