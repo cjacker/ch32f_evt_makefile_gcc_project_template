@@ -1,5 +1,3 @@
-
-
 /* memory map */
 MEMORY
 {
@@ -9,20 +7,23 @@ MEMORY
 
 ENTRY(Reset_Handler)
 
+/* Highest address of the user mode stack */
+_estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x200;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
+
 SECTIONS
 {
   __stack_size = DEFINED(__stack_size) ? __stack_size : 2K;
-  
-/* ISR vectors */
-  .vectors :
+
+  .isr_vector :
   {
     . = ALIGN(4);
-    KEEP(*(.vectors))
+    KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-/*    __Vectors_End = .;
-    __Vectors_Size = __Vectors_End - g_pfnVectors; */
   } >FLASH
-  
+ 
 
   .text :
   {
@@ -114,7 +115,6 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM
 
- . = ALIGN(8);
   PROVIDE ( end = _ebss );
   PROVIDE ( _end = _ebss );
 
