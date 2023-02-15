@@ -67,9 +67,9 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--ICMSIS \
--IDebug \
--IStdPeriphDriver/inc \
+-ICH32F_firmware_library/CMSIS \
+-ICH32F_firmware_library/Debug \
+-ICH32F_firmware_library/StdPeriphDriver/inc \
 -IUser
 
 # compile gcc flags
@@ -90,7 +90,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = Ld/Link.ld 
+LDSCRIPT = CH32F_firmware_library/Ld/Link.ld 
 
 # libraries
 LIBS = -lc -lm -lnosys

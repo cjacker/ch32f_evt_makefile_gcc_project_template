@@ -52,20 +52,23 @@ echo "#########################"
 # clean
 rm -rf evt_tmp
 # remove all sources, copy from EVT later
-rm -rf CMSIS Debug Startup StdPeriphDriver User Examples
-# remove Linker script, generate according to part info.
-rm -rf Ld
+# do not remove User dir.
+rm -rf CH32F_firmware_library Examples
 
 echo "Extract EVT package"
 mkdir -p evt_tmp
 unzip -q -O gb18030 $ZIPFILE -d evt_tmp
 
 # prepare dir structure
-cp -r evt_tmp/EVT/EXAM/SRC/CMSIS .
-cp -r evt_tmp/EVT/EXAM/SRC/Debug .
-cp -r evt_tmp/EVT/EXAM/SRC/Startup .
-cp -r evt_tmp/EVT/EXAM/SRC/StdPeriphDriver .
-cp -r evt_tmp/EVT/EXAM/GPIO/GPIO_Toggle ./User
+mkdir -p CH32F_firmware_library
+cp -r evt_tmp/EVT/EXAM/SRC/CMSIS CH32F_firmware_library/
+cp -r evt_tmp/EVT/EXAM/SRC/Debug CH32F_firmware_library/
+cp -r evt_tmp/EVT/EXAM/SRC/Startup CH32F_firmware_library/
+cp -r evt_tmp/EVT/EXAM/SRC/StdPeriphDriver CH32F_firmware_library/
+
+if [ ! -d ./User ]; then
+  cp -r evt_tmp/EVT/EXAM/GPIO/GPIO_Toggle ./User
+fi
 
 # prepare examples
 mkdir -p Examples
@@ -77,38 +80,41 @@ rm -rf evt_tmp
 
 echo "Generate linker script"
 # generate the Linker script
-mkdir -p Ld
-cp Link.template.ld Ld/Link.ld
-sed -i "s/FLASH_SIZE/$FLASHSIZE/g" Ld/Link.ld
-sed -i "s/RAM_SIZE/$RAMSIZE/g" Ld/Link.ld
+mkdir -p CH32F_firmware_library/Ld
+cp Link.template.ld CH32F_firmware_library/Ld/Link.ld
+sed -i "s/FLASH_SIZE/$FLASHSIZE/g" CH32F_firmware_library/Ld/Link.ld
+sed -i "s/RAM_SIZE/$RAMSIZE/g" CH32F_firmware_library/Ld/Link.ld
 
 # convert startup asm.
 echo "Convert startup file"
-cd Startup
-../startupfile_generator.py $STARTUP_ASM
-rm -f *.s
-cd ..
+cd CH32F_firmware_library/Startup
+../../startupfile_generator.py $STARTUP_ASM
+# convert other startup files.
+for other_asm in *.s; do
+  ../../startupfile_generator.py $other_asm
+done
+cd ../..
 
 # Fix source codes... 
 echo "Patch sources"
 # for 103 evt
 if [[ $PART = ch32f1* ]]; then
-  sed -i "s/define\t__PACKED\t\t\t__packed/define __PACKED __attribute__((packed))/g" StdPeriphDriver/inc/ch32f10x_usb.h
-  sed -i "s/__packed/__PACKED/g" StdPeriphDriver/inc/ch32f10x_usb.h
+  sed -i "s/define\t__PACKED\t\t\t__packed/define __PACKED __attribute__((packed))/g" CH32F_firmware_library/StdPeriphDriver/inc/ch32f10x_usb.h
+  sed -i "s/__packed/__PACKED/g" CH32F_firmware_library/StdPeriphDriver/inc/ch32f10x_usb.h
   
-  sed -i "s/__align( 4 )/__attribute__((aligned(4)))/g" StdPeriphDriver/src/ch32f10x_usb_host.c
+  sed -i "s/__align( 4 )/__attribute__((aligned(4)))/g" CH32F_firmware_library/StdPeriphDriver/src/ch32f10x_usb_host.c
   
   sed -i "s/unsigned int SystemCoreClock/uint32_t SystemCoreClock/g" User/system_ch32f10x.h
 fi
 
 # for ch32f203evt
 if [[ $PART = ch32f2* ]]; then
-  sed -i "s/ch32F20x.h/ch32f20x.h/g" StdPeriphDriver/inc/ch32f20x_opa.h
+  sed -i "s/ch32F20x.h/ch32f20x.h/g" CH32F_firmware_library/StdPeriphDriver/inc/ch32f20x_opa.h
 fi
 
 # for both 103 and 203 evt
-sed -i "s/\"strexh %0, %2, \[%1\]\" \: \"=r\"/\"strexh %0, %2, \[%1\]\" \: \"=\&r\"/g"  CMSIS/core_cm3.c
-sed -i "s/\"strexb %0, %2, \[%1\]\" \: \"=r\"/\"strexb %0, %2, \[%1\]\" \: \"=\&r\"/g"  CMSIS/core_cm3.c
+sed -i "s/\"strexh %0, %2, \[%1\]\" \: \"=r\"/\"strexh %0, %2, \[%1\]\" \: \"=\&r\"/g"  CH32F_firmware_library/CMSIS/core_cm3.c
+sed -i "s/\"strexb %0, %2, \[%1\]\" \: \"=r\"/\"strexb %0, %2, \[%1\]\" \: \"=\&r\"/g"  CH32F_firmware_library/CMSIS/core_cm3.c
 
 echo "Generate Makefile"
 # collect c files and asm files

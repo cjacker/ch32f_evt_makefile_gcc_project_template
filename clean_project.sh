@@ -1,3 +1,4 @@
 #!/bin/sh
-rm -rf CMSIS Ld User Examples StdPeriphDriver Startup Debug Makefile build
+rm -rf CH32F_firmware_library build User Examples
+rm -rf Makefile
  
