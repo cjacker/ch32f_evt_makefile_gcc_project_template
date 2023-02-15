@@ -37,7 +37,7 @@ Assume you already have 'arm-none-eabi-gcc' toolchain installed. to generate a g
 
 If you do not know which part you should specify, please run `./generate_project_from_evt.sh` directly for help.
 
-After project generated, there is a 'User' dir contains the codes you should write or modify.
+After project generated, there is a 'User' dir contains the codes you should write or modify. By default, it use the 'GPIO_Toggle' example from EVT package.
 
 Then type `make` to build the project.
 
