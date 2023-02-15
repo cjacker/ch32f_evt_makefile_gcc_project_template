@@ -4,8 +4,8 @@ PART_LIST="./ch32f-parts-list.txt"
 
 # if no arg,
 if [ $# -ne 1 ]; then
-  echo "usage: gen_makefile <part>" 
-  echo "please specify the ch32f part your use:"
+  echo "Usage: ./generate_project_from_evt.sh <part>" 
+  echo "please specify a ch32f part:"
   while IFS= read -r line
   do
     part=$(echo "$line"|awk -F ' ' '{print $1}'| tr '[:upper:]' '[:lower:]')
