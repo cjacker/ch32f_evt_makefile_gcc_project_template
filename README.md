@@ -34,6 +34,7 @@ Assume you already have 'arm-none-eabi-gcc' toolchain installed. to generate a g
 ```
 ./generate_project_from_evt.sh <part>
 ```
+If you want to change to another part, use `./setpart.sh <part>`.
 
 If you do not know which part you should specify, please run `./generate_project_from_evt.sh` directly for help.
 
