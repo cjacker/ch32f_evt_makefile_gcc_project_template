@@ -126,7 +126,7 @@ rm -f c_source.list startup_asm_source.list
 sed -i "s/CH32FXXX/$PART/g" Makefile
 
 if [ "$PART""x" == "ch32f103c6t6""x" ]; then 
-  sed -i "s/-specs=nosys.specs/-specs=nano.specs -specs=nosys.specs/g" Makefile
+  sed -i "s/\$(MCU) -specs=nosys.specs/\$(MCU) -specs=nano.specs -specs=nosys.specs/g" Makefile
 fi
 
 echo "#########################"
