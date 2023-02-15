@@ -43,7 +43,11 @@ if [ "$FOUND""x" == "f""x" ];then
 fi
 
 # found
-echo "$ZIPFILE $FLASHSIZE $RAMSIZE"
+echo "Convert project for $PART"
+echo "part : $PART"
+echo "flash size : $FLASHSIZE"
+echo "ram size : $RAMSIZE"
+echo "#########################"
 
 # clean
 rm -rf evt_tmp
@@ -52,8 +56,9 @@ rm -rf CMSIS Debug Startup StdPeriphDriver User Examples
 # remove Linker script, generate according to part info.
 rm -rf Ld
 
+echo "Extract EVT package"
 mkdir -p evt_tmp
-unzip -O gb18030 $ZIPFILE -d evt_tmp
+unzip -q -O gb18030 $ZIPFILE -d evt_tmp
 
 # prepare dir structure
 cp -r evt_tmp/EVT/EXAM/SRC/CMSIS .
@@ -70,6 +75,7 @@ rm -rf Examples/SRC
 # drop evt
 rm -rf evt_tmp
 
+echo "Generate linker script"
 # generate the Linker script
 mkdir -p Ld
 cp Link.template.ld Ld/Link.ld
@@ -77,12 +83,14 @@ sed -i "s/FLASH_SIZE/$FLASHSIZE/g" Ld/Link.ld
 sed -i "s/RAM_SIZE/$RAMSIZE/g" Ld/Link.ld
 
 # convert startup asm.
+echo "Convert startup file"
 cd Startup
 ../startupfile_generator.py $STARTUP_ASM
 rm -f *.s
 cd ..
 
 # Fix source codes... 
+echo "Patch sources"
 # for 103 evt
 if [[ $PART = ch32f1* ]]; then
   sed -i "s/define\t__PACKED\t\t\t__packed/define __PACKED __attribute__((packed))/g" StdPeriphDriver/inc/ch32f10x_usb.h
@@ -102,6 +110,7 @@ fi
 sed -i "s/\"strexh %0, %2, \[%1\]\" \: \"=r\"/\"strexh %0, %2, \[%1\]\" \: \"=\&r\"/g"  CMSIS/core_cm3.c
 sed -i "s/\"strexb %0, %2, \[%1\]\" \: \"=r\"/\"strexb %0, %2, \[%1\]\" \: \"=\&r\"/g"  CMSIS/core_cm3.c
 
+echo "Generate Makefile"
 # collect c files and asm files
 find . -path ./Examples -prune -o -type f -name "*.c"|sed 's@^\./@@g;s@$@ \\@g' > c_source.list
 find . -path ./Examples -prune -o -name \*.S|sed 's@^\./@@g;s@$@ \\@g'|head -n 1 > startup_asm_source.list
@@ -119,4 +128,7 @@ sed -i "s/CH32FXXX/$PART/g" Makefile
 if [ "$PART""x" == "ch32f103c6t6""x" ]; then 
   sed -i "s/-specs=nosys.specs/-specs=nano.specs -specs=nosys.specs/g" Makefile
 fi
+
+echo "#########################"
+echo "Done, project generated, type 'make' to build"
 
