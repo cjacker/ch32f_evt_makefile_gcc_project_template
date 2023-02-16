@@ -21,6 +21,7 @@ This template will do above job automatically, and support All CH32F EVT package
   + CH32F203C8T6
   + CH32F203C8U6
   + CH32F203CBT6
+  + CH32F203RBT6
   + CH32F203RCT6
   + CH32F203VCT6
   + CH32F205RBT6
