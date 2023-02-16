@@ -120,15 +120,17 @@ sed -i "s/\"strexb %0, %2, \[%1\]\" \: \"=r\"/\"strexb %0, %2, \[%1\]\" \: \"=\&
 echo "Generate Makefile"
 # collect c files and asm files
 find . -path ./Examples -prune -o -type f -name "*.c"|sed 's@^\./@@g;s@$@ \\@g' > c_source.list
-find . -path ./Examples -prune -o -name \*.S|sed 's@^\./@@g;s@$@ \\@g'|head -n 1 > startup_asm_source.list
 
 # drop Examples line in source list.
 sed -i "/^Examples/d" c_source.list
 
 sed "s/C_SOURCE_LIST/$(sed -e 's/[\&/]/\\&/g' -e 's/$/\\n/' c_source.list | tr -d '\n')/" Makefile.ch32ftemplate >Makefile
-sed -i "s/STARTUP_ASM_SOURCE_LIST/$(sed -e 's/[\&/]/\\&/g' -e 's/$/\\n/' startup_asm_source.list | tr -d '\n'|head -n 1)/" Makefile
 
-rm -f c_source.list startup_asm_source.list
+STARTUP_ASM_F=$(basename -s .s $STARTUP_ASM)".S"
+
+sed -i "s/STARTUP_ASM_SOURCE_LIST/CH32F_firmware_library\/Startup\/$STARTUP_ASM_F/" Makefile
+
+rm -f c_source.list
 
 sed -i "s/CH32FXXX/$PART/g" Makefile
 
